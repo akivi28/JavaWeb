@@ -73,9 +73,9 @@
   Реалізація відображення одного файлу як частини іншого файлу.
 </p>
 &lt;jsp:include page="fragment.jsp"/&gt;
-<jsp:include page="fragment.jsp"/>
+<jsp:include page="../../fragment.jsp"/>
 <p>ДЗ</p>
-<jsp:include page="firstDz.jsp"/>
+<jsp:include page="../../firstDz.jsp"/>
 
 <pre>
     Browser        Tomcat
