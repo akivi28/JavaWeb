@@ -17,7 +17,10 @@
     <header>
         <nav>
             <div class="nav-wrapper deep-purple">
-                <a href="<%=contextPath%>/" class="site-logo left">pv222</a>
+                <a href="<%=contextPath%>/" class="site-logo left">
+                    <img src="<%=contextPath%>/img/Java_Logo%201.png" alt="Logo">
+                    pv222
+                </a>
                 <ul id="nav-mobile" class="left">
                     <li><a href="<%=contextPath%>/aboutJsp">Jsp</a></li>
                     <li><a href="<%=contextPath%>/servlets">Servlets</a></li>
