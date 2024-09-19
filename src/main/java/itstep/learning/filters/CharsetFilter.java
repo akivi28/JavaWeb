@@ -20,6 +20,9 @@ public class CharsetFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
+
+        request.setAttribute("charset", "UTF-8");
+
         System.out.println("Filter works for " + ((HttpServletRequest) request).getRequestURI() );
         chain.doFilter(request, response);
     }

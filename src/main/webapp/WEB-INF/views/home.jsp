@@ -4,3 +4,4 @@
 <h1>Home</h1>
 <a href="servlets">servlets</a>
 <h2><%=request.getAttribute("hash")%></h2>
+<h2><%=request.getAttribute("db")%></h2>

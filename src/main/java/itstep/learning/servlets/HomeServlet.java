@@ -10,14 +10,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Connection;
 
 @Singleton
 public class HomeServlet extends HttpServlet {
     private final HashService hashService;
+    private final Connection connection;
 
     @Inject
     public HomeServlet(@Named("digest")HashService hashService) {
         this.hashService = hashService;
+        this.connection = null;
     }
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -25,6 +28,7 @@ public class HomeServlet extends HttpServlet {
 
         req.setAttribute("hash", hashService.digest("123") + "<br/>" + hashService.hashCode() + "<br/>" + this.hashCode());
         req.setAttribute("page", "home");
+        req.setAttribute("db", connection == null ? "NO connection" : "connection OK");
         req.getRequestDispatcher("WEB-INF/views/_layout.jsp").forward(req, resp);
     }
 }
