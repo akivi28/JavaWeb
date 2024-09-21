@@ -3,6 +3,7 @@ package itstep.learning.servlets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import itstep.learning.dal.dao.UserDao;
 import itstep.learning.services.hash.HashService;
 
 import javax.servlet.ServletException;
@@ -15,12 +16,12 @@ import java.sql.Connection;
 @Singleton
 public class HomeServlet extends HttpServlet {
     private final HashService hashService;
-    private final Connection connection;
+    private final UserDao userDao;
 
     @Inject
-    public HomeServlet(@Named("digest")HashService hashService) {
+    public HomeServlet(@Named("digest")HashService hashService, UserDao userDao) {
         this.hashService = hashService;
-        this.connection = null;
+        this.userDao = userDao;
     }
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -28,7 +29,7 @@ public class HomeServlet extends HttpServlet {
 
         req.setAttribute("hash", hashService.digest("123") + "<br/>" + hashService.hashCode() + "<br/>" + this.hashCode());
         req.setAttribute("page", "home");
-        req.setAttribute("db", connection == null ? "NO connection" : "connection OK");
+        req.setAttribute("db", userDao.installTables() ? "Tables Ok" : "Tables Fail");
         req.getRequestDispatcher("WEB-INF/views/_layout.jsp").forward(req, resp);
     }
 }

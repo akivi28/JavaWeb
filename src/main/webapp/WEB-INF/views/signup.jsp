@@ -2,22 +2,15 @@
 <%@ page contentType="text/html;charset=UTF-8"%>
 
 <%
-  Boolean auth = (Boolean) request.getAttribute("auth");
-  if (auth == null) {
-    auth = false;
-  }
+  String contextPath = request.getContextPath();
 %>
 <h1>Register</h1>
 
-<%if(auth){%>
-  <p>Name: <%= request.getAttribute("name")%></p>
-  <p>Phone: <%= request.getAttribute("phone")%></p>
-  <p>Email: <%= request.getAttribute("email")%></p>
-  <p>File name: <%= request.getAttribute("fileName")%></p>
-  <p>File size: <%= request.getAttribute("fileSize")%> bytes</p>
-<% } %>
-
-<form class="card-panel grey lighten-5" enctype="multipart/form-data" method="post">
+<form class="card-panel grey lighten-5"
+      enctype="multipart/form-data"
+      method="post"
+      id="signup-form"
+      action="<%=contextPath%>/signup">
   <div class="row">
     <div class="input-field col s6">
       <i class="material-icons prefix">badge</i>
@@ -25,9 +18,9 @@
       <label for="user-name">Name</label>
     </div>
     <div class="input-field col s6">
-      <i class="material-icons prefix">phone</i>
-      <input id="user-phone" name="user-phone" type="tel" class="validate">
-      <label for="user-phone">Phone</label>
+      <i class="material-icons prefix">cake</i>
+      <input id="user-birthdate" name="user-birthdate" type="date" class="validate">
+      <label for="user-birthdate">Birth Date</label>
     </div>
   </div>
 

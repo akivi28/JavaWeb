@@ -54,6 +54,7 @@ public class DbModule extends AbstractModule {
                         ini.get("user"),
                         ini.get("password")
                 );
+                System.out.println("Connected to database");
             }
             catch( SQLException ex ) {
                 System.err.println( "DbModule::getConnection " + ex.getMessage() );
