@@ -1,6 +1,7 @@
 package itstep.learning.servlets;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import itstep.learning.dal.dao.UserDao;
@@ -24,6 +25,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.Objects;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 @Singleton
@@ -31,16 +33,56 @@ public class SignupServlet extends HttpServlet {
     private final FormParseService formParseService;
     private final FileService fileService;
     private final UserDao userDao;
+    private final Logger logger;
     @Inject
-    public SignupServlet(FormParseService formParseService, FileService fileService, UserDao userDao) {
+    public SignupServlet(FormParseService formParseService, FileService fileService, UserDao userDao, Logger logger) {
         this.formParseService = formParseService;
         this.fileService = fileService;
         this.userDao = userDao;
+        this.logger = logger;
     }
+
+    @Override
+    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        switch (req.getMethod().toUpperCase()) {
+            case "PATCH": doPatch(req, resp); break;
+            default: super.service(req, resp);
+        }
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setAttribute("page", "signup");
         req.getRequestDispatcher("WEB-INF/views/_layout.jsp").forward(req, resp);
+
+    }
+
+    protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String userLogin = req.getParameter("user-email");
+        String userPassword = req.getParameter("user-password");
+        logger.info("userLogin: "+ userLogin + " userPassword: "+ userPassword);
+        RestResponse restResponse = new RestResponse();
+        resp.setContentType("application/json");
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+        if( userLogin == null || userLogin.isEmpty() ||
+                userPassword == null || userPassword.isEmpty() ) {
+            restResponse.setStatus( "Error" );
+            restResponse.setData( "Missing or empty credentials" );
+            resp.getWriter().print( gson.toJson( restResponse ) );
+            return;
+        }
+
+        try {
+            restResponse.setStatus("Ok");
+            restResponse.setData(userDao.authenticate(userLogin, userPassword));
+            resp.getWriter().print(gson.toJson(restResponse));
+        }
+        catch (Exception e) {
+            restResponse.setStatus( "Error" );
+            restResponse.setData( e );
+            resp.getWriter().print( gson.toJson( restResponse ) );
+        }
     }
 
     @Override

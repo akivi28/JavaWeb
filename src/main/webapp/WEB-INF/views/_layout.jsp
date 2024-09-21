@@ -27,6 +27,8 @@
 <%--                    <li><a href="collapsible.html">JavaScript</a></li>--%>
                 </ul>
                 <a class="nav-addon right" href="<%=contextPath%>/signup"><i class="material-icons">account_circle</i></a>
+                <!-- Modal Trigger -->
+                <a class="nav-addon right modal-trigger" href="#auth-modal"><i class="material-icons">login</i></a>
             </div>
         </nav>
     </header>
@@ -60,6 +62,31 @@
             </div>
         </div>
     </footer>
+
+    <!-- Modal Structure -->
+    <div id="auth-modal" class="modal">
+        <div class="modal-content">
+            <h4>Authentication</h4>
+            <form id="modal-auth-form" action="<%=contextPath%>/signup">
+                <div class="row">
+                    <div class="input-field col s6">
+                        <i class="material-icons prefix">alternate_email</i>
+                        <input id="auth-user-email" name="user-email" type="email" class="validate">
+                        <label for="auth-user-email">E-mail</label>
+                    </div>
+                    <div class="input-field col s6">
+                        <i class="material-icons prefix">lock</i>
+                        <input id="auth-user-password" name="user-password" type="password" class="validate">
+                        <label for="auth-user-password">Password</label>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-close waves-effect waves-green btn-flat">Закрити</button>
+            <button form="modal-auth-form" type="submit" class="waves-effect waves-green btn-flat">Вхід</button>
+        </div>
+    </div>
 
     <!-- Compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
