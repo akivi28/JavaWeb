@@ -3,10 +3,14 @@ package itstep.learning.servlets;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import itstep.learning.dal.dao.UserDao;
+import itstep.learning.dal.dto.User;
 import itstep.learning.models.form.UserSignupFormModel;
 import itstep.learning.rest.RestResponse;
+import itstep.learning.services.files.FileService;
 import itstep.learning.services.formparse.FormParseResult;
 import itstep.learning.services.formparse.FormParseService;
+import org.apache.commons.fileupload.FileItem;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -25,10 +29,13 @@ import java.util.regex.Pattern;
 @Singleton
 public class SignupServlet extends HttpServlet {
     private final FormParseService formParseService;
-
+    private final FileService fileService;
+    private final UserDao userDao;
     @Inject
-    public SignupServlet(FormParseService formParseService) {
+    public SignupServlet(FormParseService formParseService, FileService fileService, UserDao userDao) {
         this.formParseService = formParseService;
+        this.fileService = fileService;
+        this.userDao = userDao;
     }
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -38,60 +45,14 @@ public class SignupServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        SimpleDateFormat dateParser =
-                new SimpleDateFormat("yyyy-MM-dd");
         RestResponse restResponse = new RestResponse();
         resp.setContentType( "application/json" );
-        FormParseResult res = formParseService.parse( req );
-        System.out.println( res.getFields().size() + " " + res.getFiles().size() );
-        System.out.println( res.getFields().toString() );
-        UserSignupFormModel model = new UserSignupFormModel();
-        model.setName( res.getFields().get("user-name") );
-        if( model.getName() == null || model.getName().isEmpty() ) {
-            restResponse.setStatus( "Error" );
-            restResponse.setData( "Missing or empty required field: 'user-name'" );
-            resp.getWriter().print(
-                    new Gson().toJson( restResponse )
-            );
-            return;
-        }
-        model.setEmail( res.getFields().get("user-email") );
-        if( model.getEmail() == null || model.getEmail().isEmpty() ) {
-            restResponse.setStatus( "Error" );
-            restResponse.setData( "Missing or empty required field: 'user-email'" );
-            resp.getWriter().print(
-                    new Gson().toJson( restResponse )
-            );
-            return;
-        }
 
-        String emailTmp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
-        Pattern pattern = Pattern.compile( emailTmp );
-        if (!pattern.matcher(model.getEmail()).matches()) {
-            restResponse.setStatus("Error");
-            restResponse.setData("Invalid email format");
-            resp.getWriter().print(
-                    new Gson().toJson( restResponse )
-            );
-            return;
-        }
-
+        UserSignupFormModel model;
         try {
-            model.setBirthdate(
-                    dateParser.parse(
-                            res.getFields().get("user-birthdate")
-                    )
-            );
-            Date currentDate = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
-
-            if (model.getBirthdate().after(currentDate)) {
-                restResponse.setStatus("Error");
-                restResponse.setData("Birthdate cannot be in the future.");
-                resp.getWriter().print(new Gson().toJson(restResponse));
-                return;
-            }
+            model = getModelFromRequest( req );
         }
-        catch( ParseException ex ) {
+        catch( Exception ex ) {
             restResponse.setStatus( "Error" );
             restResponse.setData( ex.getMessage() );
             resp.getWriter().print(
@@ -100,22 +61,11 @@ public class SignupServlet extends HttpServlet {
             return;
         }
 
-        if (res.getFields().get("user-password") == null || res.getFields().get("user-password").isEmpty() || res.getFields().get("user-password").length() < 8 ) {
+        User user = userDao.signUp( model );
+        if( user == null ) {
             restResponse.setStatus( "Error" );
-            restResponse.setData("Missing or empty required field: 'user-password'" );
-            resp.getWriter().print(
-                    new Gson().toJson( restResponse )
-            );
-            return;
-        }else {
-            if(!Objects.equals(res.getFields().get("user-password"), res.getFields().get("user-repeat"))){
-                restResponse.setStatus( "Error" );
-                restResponse.setData("Passwords do not match");
-                resp.getWriter().print(
-                        new Gson().toJson( restResponse )
-                );
-                return;
-            }
+            restResponse.setData("500 Db Error");
+            resp.getWriter().print(new Gson().toJson( restResponse ) );
         }
 
         restResponse.setStatus( "Ok" );
@@ -123,5 +73,46 @@ public class SignupServlet extends HttpServlet {
         resp.getWriter().print(
                 new Gson().toJson( restResponse )
         );
+    }
+
+    private UserSignupFormModel getModelFromRequest( HttpServletRequest req ) throws Exception {
+        SimpleDateFormat dateParser =
+                new SimpleDateFormat("yyyy-MM-dd");
+        FormParseResult res = formParseService.parse( req );
+
+        UserSignupFormModel model = new UserSignupFormModel();
+
+        model.setName( res.getFields().get("user-name") );
+        if( model.getName() == null || model.getName().isEmpty() ) {
+            throw new Exception( "Missing or empty required field: 'user-name'" );
+        }
+
+        model.setEmail( res.getFields().get("user-email") );
+
+        try {
+            model.setBirthdate(
+                    dateParser.parse(
+                            res.getFields().get("user-birthdate")
+                    )
+            );
+        }
+        catch( ParseException ex ) {
+            throw new Exception( ex.getMessage() );
+        }
+
+        String uploadedName = null;
+        FileItem avatar = res.getFiles().get( "user-avatar" );
+        if( avatar.getSize() > 0 ) {
+            try{
+                uploadedName = fileService.uploadAvatar( avatar );
+            }catch( Exception ex ) {
+                throw new Exception( ex.getMessage() );
+            }
+            model.setAvatar( uploadedName );
+        }
+        System.out.println( uploadedName );
+
+        model.setPassword( res.getFields().get( "user-password" ) );
+        return model;
     }
 }
