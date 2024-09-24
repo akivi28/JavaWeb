@@ -2,6 +2,9 @@
 <%
     String pageName = (String) request.getAttribute("page");
     String contextPath = request.getContextPath();
+    Boolean isAuthenticated = request.getAttribute("Claim.Sid") != null;
+    String avatar = (String) request.getAttribute("Claim.Avatar");
+    String userName = (String) request.getAttribute("Claim.Name");
 %>
 <html>
 <head>
@@ -24,11 +27,18 @@
                 <ul id="nav-mobile" class="left">
                     <li><a href="<%=contextPath%>/aboutJsp">Jsp</a></li>
                     <li><a href="<%=contextPath%>/servlets">Servlets</a></li>
-<%--                    <li><a href="collapsible.html">JavaScript</a></li>--%>
                 </ul>
-                <a class="nav-addon right" href="<%=contextPath%>/signup"><i class="material-icons">account_circle</i></a>
-                <!-- Modal Trigger -->
-                <a class="nav-addon right modal-trigger" href="#auth-modal"><i class="material-icons">login</i></a>
+                <% if( isAuthenticated ) { %>
+                <img src="<%=contextPath%>/file/<%=avatar%>"
+                     alt="avatar"
+                     title="<%=userName%>"
+                     class="nav-addon right nav-avatar"/>
+                <a class="nav-addon right" href="?logout"><i class="material-icons">logout</i></a>
+                <% } else { %>
+                    <a class="nav-addon right" href="<%=contextPath%>/signup"><i class="material-icons">person_add</i></a>
+                    <!-- Modal Trigger -->
+                    <a class="nav-addon right modal-trigger" href="#auth-modal"><i class="material-icons">login</i></a>
+                <% } %>
             </div>
         </nav>
     </header>

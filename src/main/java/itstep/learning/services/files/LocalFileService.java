@@ -5,13 +5,12 @@ import com.google.inject.Singleton;
 import itstep.learning.services.stream.StringReader;
 import org.apache.commons.fileupload.FileItem;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
 
 @Singleton
 public class LocalFileService implements FileService {
@@ -68,7 +67,11 @@ public class LocalFileService implements FileService {
     }
 
     @Override
-    public OutputStream download(String fileName) {
+    public InputStream download( String fileName ) throws IOException {
+        File file = new File( this.uploadPath, fileName );
+        if( file.isFile() && file.canRead() ) {
+            return Files.newInputStream( file.toPath() );
+        }
         return null;
     }
 }

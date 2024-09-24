@@ -18,6 +18,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -74,8 +75,17 @@ public class SignupServlet extends HttpServlet {
         }
 
         try {
+            User user = userDao.authenticate(userLogin, userPassword);
+            if( user == null ) {
+                restResponse.setStatus( "Error" );
+                restResponse.setData( "Credentials rejected" );
+                resp.getWriter().print( gson.toJson( restResponse ) );
+                return;
+            }
+            HttpSession session = req.getSession();
+            session.setAttribute("userId", user.getId());
             restResponse.setStatus("Ok");
-            restResponse.setData(userDao.authenticate(userLogin, userPassword));
+            restResponse.setData(user);
             resp.getWriter().print(gson.toJson(restResponse));
         }
         catch (Exception e) {
