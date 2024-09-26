@@ -27,6 +27,7 @@
                 <ul id="nav-mobile" class="left">
                     <li><a href="<%=contextPath%>/aboutJsp">Jsp</a></li>
                     <li><a href="<%=contextPath%>/servlets">Servlets</a></li>
+                    <li><a href="<%=contextPath%>/spa">SPA</a></li>
                 </ul>
                 <% if( isAuthenticated ) { %>
                 <img src="<%=contextPath%>/file/<%=avatar%>"
