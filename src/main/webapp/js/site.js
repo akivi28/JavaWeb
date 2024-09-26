@@ -56,4 +56,40 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
     })
+
+    const logoutButton = document.getElementById("logout-button");
+    if (logoutButton) {
+        logoutButton.addEventListener("click", function () {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Do you really want to logout?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`?logout=true`)
+                        .then(() => {
+                            localStorage.setItem('logout-success-alert', "true");
+                            window.location.reload();
+                        })
+                        .catch(error => console.error('Error logging out:', error));
+                }
+            });
+        });
+    }
+
+    window.addEventListener('load', () => {
+        if (localStorage.getItem('logout-success-alert') === 'true') {
+            Swal.fire({
+                title: "Logout",
+                text: "You have successfully logged out of your account",
+                icon: "success"
+            });
+            localStorage.removeItem('logout-success-alert');
+        }
+    });
+
 });

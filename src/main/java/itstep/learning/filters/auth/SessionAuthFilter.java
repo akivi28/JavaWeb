@@ -25,8 +25,9 @@ public class SessionAuthFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpSession session = req.getSession();
-        String qs = req.getQueryString();
-        if("logout".equals(qs)){
+        String logoutParam = req.getParameter("logout");
+
+        if("true".equals(logoutParam)) {
             session.removeAttribute("userId");
             ((HttpServletResponse)response).sendRedirect(req.getContextPath() + "/");
         }
