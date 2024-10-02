@@ -25,3 +25,25 @@ body{
     max-height: 55px;
     margin-top: 5px;
 }
+.error{
+    color: red;
+}
+.shop-caregory img{
+    max-width: 150px;
+    max-height: 150px;
+}
+.shop-caregory b{
+    display: block;
+}
+.shop-caregory{
+    border: 1px solid lightgray;
+    display: inline-block;
+    cursor:pointer;
+    padding: 10px;
+    width: 250px;
+}
+.shop-caregory-container{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}

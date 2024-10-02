@@ -61,6 +61,9 @@ public class AuthServlet extends HttpServlet {
                 return;
             }
             Token token = tokenDao.create(user);
+            resp.setHeader("X-Claim-Sid", user.getId().toString());
+            resp.setHeader("X-Claim-Name", user.getName());
+            resp.setHeader("X-Claim-Avatar", user.getAvatar());
             sendRestResponse(resp, token);
         } catch (Exception e) {
             sendRestError(resp, e.getMessage());
