@@ -41,6 +41,25 @@ public class UserDao {
         return null;
     }
 
+    public String getUserRoleById(UUID userId) {
+        String sql = "SELECT roles.name AS role " +
+                "FROM users_security " +
+                "JOIN roles ON users_security.role_id = roles.id " +
+                "WHERE users_security.user_id = ?";
+
+        try (PreparedStatement prep = connection.prepareStatement(sql)) {
+            prep.setString(1, userId.toString());
+            ResultSet res = prep.executeQuery();
+            if (res.next()) {
+                return res.getString("role");
+            }
+        } catch (SQLException ex) {
+            logger.log(Level.WARNING, ex.getMessage() + " -- " + sql, ex);
+        }
+        return null;
+    }
+
+
     public User authenticate( String login, String password ) throws Exception {
         String sql = "SELECT * FROM users JOIN users_security " +
                 " ON users.id = users_security.user_id " +

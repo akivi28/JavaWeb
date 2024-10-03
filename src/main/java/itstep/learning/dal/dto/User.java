@@ -14,6 +14,15 @@ public class User {
     private Date birthday;
     private Date signupDt;
     private Date deleteDt;
+    private String role;
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
 
     public User() {
     }

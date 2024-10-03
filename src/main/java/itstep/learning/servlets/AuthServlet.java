@@ -60,10 +60,13 @@ public class AuthServlet extends HttpServlet {
                 sendRestError(resp, "Invalid credentials");
                 return;
             }
+            user.setRole(userDao.getUserRoleById(user.getId()));
+
             Token token = tokenDao.create(user);
             resp.setHeader("X-Claim-Sid", user.getId().toString());
             resp.setHeader("X-Claim-Name", user.getName());
             resp.setHeader("X-Claim-Avatar", user.getAvatar());
+            resp.setHeader("X-Claim-Role", user.getRole());
             sendRestResponse(resp, token);
         } catch (Exception e) {
             sendRestError(resp, e.getMessage());

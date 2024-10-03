@@ -5,7 +5,8 @@
     user: {
       id:null,
       avatar:null,
-      name:null
+      name:null,
+      role:null
     },
     page: "home",
     shop: {
@@ -71,8 +72,10 @@ function Spa() {
                 const userId = r.headers.get('X-Claim-Sid');
                 const userName = r.headers.get('X-Claim-Name');
                 const userAvatar = r.headers.get('X-Claim-Avatar');
+                const userRole = r.headers.get('X-Claim-Role');
 
-                const user = { id: userId, name: userName, avatar: userAvatar };
+                const user = { id: userId, name: userName, avatar: userAvatar, role: userRole };
+                console.log(user);
                 window.sessionStorage.setItem("user", JSON.stringify(user));
 
                 dispatch({
@@ -199,17 +202,43 @@ function Category({id}) {
     return <React.Fragment>
         <h1>Category: {id}</h1>
         <b onClick={() => dispatch({type: 'navigate', payload: 'home'})}>Home</b>
-        {state.auth.token &&
-            <form onSubmit={addProduct} encType="multipart/form-data">
+        {state.auth.token && state.user && state.user.role === 'admin' &&
+            <form onSubmit={addProduct} encType="multipart/form-data" className="product-form form-syle">
                 <hr/>
-                <input name="product-name" placeholder="Назва"/><br/>
-                <input name="product-price" type="number" step="0.01" placeholder="Ціна"/><br/>
-                Картинка: <input type="file" name="product-img"/><br/>
-                <textarea name="product-description" placeholder="Опис"></textarea><br/>
+
+                <div className="input-field">
+                    <input id="product-name" name="product-name" type="text" className="validate" required/>
+                    <label htmlFor="product-name">Назва продукту</label>
+                </div>
+
+                <div className="input-field">
+                    <input id="product-price" name="product-price" type="number" step="0.01" className="validate"
+                           required/>
+                    <label htmlFor="product-price">Ціна</label>
+                </div>
+
+                <div className="file-field input-field">
+                    <div className="btn">
+                        <span>Картинка</span>
+                        <input type="file" name="product-img" required/>
+                    </div>
+                    <div className="file-path-wrapper">
+                        <input className="file-path validate" type="text" placeholder="Завантажте зображення"/>
+                    </div>
+                </div>
+
+                <div className="input-field">
+                    <textarea id="product-description" name="product-description" className="materialize-textarea"
+                              required></textarea>
+                    <label htmlFor="product-description">Опис продукту</label>
+                </div>
+
                 <input type="hidden" name="product-category-id" value={id}/>
-                <button type="submit">Додати</button>
+
+                <button type="submit" className="btn waves-effect waves-light">Додати</button>
             </form>
         }
+
     </React.Fragment>
 }
 
@@ -221,13 +250,16 @@ function Home() {
                 .then(r => r.json())
                 .then(j => dispatch({type: 'setCategory', payload: j.data}));
         }
-    },[])
+    }, [])
     return <React.Fragment>
         <h2>Home</h2>
-        <b onClick={()=> dispatch({type: 'navigate', payload: 'shop'})}>Admin</b>
+        <b onClick={() => dispatch({type: 'navigate', payload: 'shop'})}>Admin</b>
         <div className="shop-caregory-container">
-            {state.shop.categories.map(c=> <div key={c.id} className="shop-caregory"
-    onClick={()=> dispatch({type: 'navigate', payload: 'category/' + c.id})}
+            {state.shop.categories.map(c => <div key={c.id} className="shop-caregory"
+                                                 onClick={() => dispatch({
+                                                     type: 'navigate',
+                                                     payload: 'category/' + c.id
+                                                 })}
             >
                 <b>{c.name}</b>
                 <img src={"file/" + c.imageUrl} alt=""/>
@@ -237,8 +269,9 @@ function Home() {
     </React.Fragment>
 }
 
-function Shop(){
-    const addCategory = React.useCallback( (e) => {
+function Shop() {
+    const {state, dispatch} = React.useContext(StateContext);
+    const addCategory = React.useCallback((e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
         fetch("shop/category", {
@@ -249,13 +282,35 @@ function Shop(){
     });
     return <React.Fragment>
         <h2>Shop</h2>
-        <hr/>
-        <form onSubmit={addCategory} encType="multipart/form-data">
-            <input name="category-name" placeholder="Категорія"/><br/>
-            Картинка: <input type="file" name="category-img"/><br/>
-            <textarea name="category-description" placeholder="Опис"></textarea><br/>
-            <button type="submit">Додати</button>
-        </form>
+
+        {state.auth.token && state.user && state.user.role === 'admin' &&
+            <form onSubmit={addCategory} encType="multipart/form-data" className="category-form form-syle">
+                <hr/>
+                <div className="input-field">
+                    <input id="category-name" name="category-name" type="text" className="validate" required/>
+                    <label htmlFor="category-name">Назва категорії</label>
+                </div>
+
+                <div className="file-field input-field">
+                    <div className="btn">
+                        <span>Картинка</span>
+                        <input type="file" name="category-img" required/>
+                    </div>
+                    <div className="file-path-wrapper">
+                        <input className="file-path validate" type="text" placeholder="Завантажте зображення"/>
+                    </div>
+                </div>
+
+                <div className="input-field">
+                    <textarea id="category-description" name="category-description" className="materialize-textarea"
+                              required></textarea>
+                    <label htmlFor="category-description">Опис</label>
+                </div>
+
+                <button type="submit" className="btn waves-effect waves-light">Додати</button>
+            </form>
+
+        }
     </React.Fragment>
 }
 

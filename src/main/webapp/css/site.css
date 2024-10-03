@@ -47,3 +47,8 @@ body{
     flex-direction: row;
     justify-content: space-between;
 }
+.form-syle{
+    padding: 30px;
+    border: 1px solid lightblue;
+    border-radius: 10px;
+}
